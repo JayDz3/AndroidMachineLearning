@@ -16,8 +16,8 @@
     <string name="predicted_value_hint"> 0.0 </string>
 
     <string name="content_description_add"> Add an item </string>
-    <string name="content_description_remove">Remove an ite </string>
+    <string name="content_description_remove">Remove an item </string>
 
-    <string name="predicted_value_result_hint"> result </string>
-    <string name="dollar_sign"> $ </string>
+    <string name="predicted_value_result_hint"> RESULT </string>
+    <string name="predictor_label">PREDICTION</string>
 </resources>

@@ -3,4 +3,7 @@
     <dimen name="fourDP"> 4dp </dimen>
     <dimen name="eightDP"> 8dp </dimen>
     <dimen name="sixteenDP"> 16dp </dimen>
+    <dimen name="thirtyTwoDP"> 32dp </dimen>
+    <dimen name="fourtyEightDP"> 48dp </dimen>
+    <dimen name="fiftySixDP"> 56dp </dimen>
 </resources>

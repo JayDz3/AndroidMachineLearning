@@ -2,13 +2,15 @@ package com.idesign.androidmachinelearning;
 
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -24,8 +26,8 @@ import java.util.stream.Collectors;
 
 public class MainActivity extends AppCompatActivity {
 
-  Button submitButton;
-  ImageButton addItemButton, removeItemButton;
+  ImageButton addItemButton, removeItemButton, submitButton;
+  EditText predictionValueOne, predictionValueTwo;
   TextView resultView;
   RecyclerView recyclerView;
   GridLayoutManager gridLayoutManager;
@@ -41,8 +43,10 @@ public class MainActivity extends AppCompatActivity {
     setContentView(R.layout.activity_main);
 
     resultView = findViewById(R.id.main_predicted_value_result);
+    predictionValueOne = findViewById(R.id.main_predictor_value_one);
+    predictionValueTwo = findViewById(R.id.main_predictor_value_two);
 
-    submitButton = findViewById(R.id.main_submit);
+    submitButton = findViewById(R.id.main_submit_button);
     addItemButton = findViewById(R.id.main_add_item_button);
     removeItemButton = findViewById(R.id.main_remove_item_button);
 
@@ -111,7 +115,13 @@ public class MainActivity extends AppCompatActivity {
       return;
     }
     items = adapter.getItems();
-    runAlgorithm();
+    if (validPredictionValues()) {
+      double valueOne = Double.parseDouble(predictionValueOne.getText().toString());
+      double valueTwo = Double.parseDouble(predictionValueTwo.getText().toString());
+      runAlgorithm(valueOne, valueTwo);
+    } else {
+      showToast("Please fill out both predictor values");
+    }
   }
 
   public View getView(int position) {
@@ -120,6 +130,10 @@ public class MainActivity extends AppCompatActivity {
 
   public FeatureItemAdapter.MyViewHolder getViewHolder(View view) {
     return (FeatureItemAdapter.MyViewHolder) recyclerView.getChildViewHolder(view);
+  }
+
+  public boolean validPredictionValues() {
+    return !TextUtils.isEmpty(predictionValueOne.getText().toString()) && !TextUtils.isEmpty(predictionValueTwo.getText().toString());
   }
 
   /*==========================*
@@ -139,7 +153,7 @@ public class MainActivity extends AppCompatActivity {
    * labels.add(304.0);                                *
    *===================================================*/
 
-  public void runAlgorithm() {
+  public void runAlgorithm(double valueOne, double valueTwo) {
     List<Double[]> dataSet = new ArrayList<>();
     List<Double> labels = new ArrayList<>();
     for (FeatureItem featureItem : items) {
@@ -156,9 +170,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // placeholder values for prediction until UI added to generate dynamic values //
-    // result ends up around 8500.********* at 10,000 iterations //
+    // result ends up around $8615.********* at 10,000 iterations with values of 600.0, 360,000.0//
 
-    Double[] scaledFeatureVector = scalingFunc.apply(new Double[] {1.0, 600.0, 360000.0});
+    Double[] scaledFeatureVector = scalingFunc.apply(new Double[] {1.0, valueOne, valueTwo});
     double predictedPrice = targetFunction.apply(scaledFeatureVector);
     resultView.setText(String.valueOf(predictedPrice));
   }

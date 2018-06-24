@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <android.support.constraint.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -7,53 +8,64 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
+
     <android.support.constraint.ConstraintLayout
         android:id="@+id/main_value_linear_layout"
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        app:layout_constraintHorizontal_weight="2"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
         android:layout_marginTop="@dimen/eightDP"
-        android:layout_marginBottom="@dimen/eightDP">
+        android:layout_marginBottom="@dimen/eightDP"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/main_bottom_layout">
 
         <TextView
             android:id="@+id/main_items_label"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
             android:layout_margin="@dimen/eightDP"
             android:text="@string/items_label"
-            android:textAlignment="center"/>
+            android:textAlignment="center"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <ImageButton
             android:id="@+id/main_remove_item_button"
-            android:src="@drawable/ic_remove_circle_outline_black_24dp"
-            android:contentDescription="@string/content_description_remove"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:layout_constraintTop_toBottomOf="@id/main_items_label"
-            app:layout_constraintStart_toStartOf="parent"/>
+            android:contentDescription="@string/content_description_remove"
+            android:src="@drawable/ic_remove_circle_outline_black_24dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/main_items_label" />
 
         <ImageButton
             android:id="@+id/main_add_item_button"
-            android:src="@drawable/ic_add_circle_outline_black_24dp"
-            android:contentDescription="@string/content_description_add"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:layout_constraintTop_toBottomOf="@id/main_items_label"
-            app:layout_constraintStart_toEndOf="@id/main_remove_item_button" />
+            android:contentDescription="@string/content_description_add"
+            android:src="@drawable/ic_add_circle_outline_black_24dp"
+            app:layout_constraintStart_toEndOf="@id/main_remove_item_button"
+            app:layout_constraintTop_toBottomOf="@id/main_items_label" />
+
+        <ImageButton
+            android:id="@+id/main_submit_button"
+            android:src="@drawable/ic_add_circle_outline_black_24dp"
+            android:contentDescription="@string/submit_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_marginEnd="@dimen/eightDP"
+            android:elevation="@dimen/fourDP"/>
 
     </android.support.constraint.ConstraintLayout>
 
     <android.support.constraint.ConstraintLayout
         android:id="@+id/main_label_layout"
         android:layout_width="0dp"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintHorizontal_weight="5"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toEndOf="@id/main_value_linear_layout"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_margin="@dimen/eightDP">
@@ -92,51 +104,93 @@
                 android:text="@string/value_label"/>
         </LinearLayout>
 
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/main_recycler_view"
+    </android.support.constraint.ConstraintLayout>
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/main_recycler_view"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintTop_toBottomOf="@id/main_label_layout"
+        app:layout_constraintBottom_toTopOf="@id/main_bottom_layout"
+        app:layout_constraintStart_toEndOf="@id/main_value_linear_layout"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_margin="@dimen/eightDP"
+        app:layoutManager="android.support.v7.widget.LinearLayoutManager">
+
+    </android.support.v7.widget.RecyclerView>
+
+    <android.support.constraint.ConstraintLayout
+        android:id="@+id/main_bottom_layout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/eightDP"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <LinearLayout
+            android:id="@+id/main_prediction_layout"
             android:layout_width="0dp"
-            android:layout_height="0dp"
-            app:layout_constraintTop_toBottomOf="@id/main_feature_label_layout"
-            app:layout_constraintBottom_toTopOf="@id/main_submit"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintBottom_toTopOf="@id/main_result_layout"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <TextView
+                android:id="@+id/main_predictor_label"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:layout_marginEnd="@dimen/eightDP"
+                android:textAlignment="textEnd"
+                android:text="@string/predictor_label"/>
+
+            <EditText
+                android:id="@+id/main_predictor_value_one"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="3"
+                android:hint="@string/feature_one_hint"
+                android:inputType="numberDecimal"/>
+
+            <EditText
+                android:id="@+id/main_predictor_value_two"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="3"
+                android:hint="@string/feature_two_hint"
+                android:inputType="numberDecimal"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/main_result_layout"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            android:layout_margin="@dimen/eightDP"
-            app:layoutManager="android.support.v7.widget.GridLayoutManager">
+            app:layout_constraintBottom_toBottomOf="parent">
 
-        </android.support.v7.widget.RecyclerView>
+            <TextView
+                android:id="@+id/main_predicted_value_result_label"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textAlignment="textEnd"
+                android:layout_marginEnd="@dimen/eightDP"
+                android:text="@string/predicted_value_result_hint"/>
 
-        <TextView
-            android:id="@+id/main_predicted_value_result_label"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/main_predicted_value_result"
-            app:layout_constraintHorizontal_weight="1"
-            android:layout_margin="@dimen/eightDP"
-            android:text="@string/predicted_value_result_hint"
-            android:textAlignment="textEnd"/>
+            <TextView
+                android:id="@+id/main_predicted_value_result"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="3"
+                android:layout_marginStart="@dimen/eightDP"
+                android:hint="@string/predicted_value_hint"/>
 
-        <TextView
-            android:id="@+id/main_predicted_value_result"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toEndOf="@id/main_predicted_value_result_label"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_weight="2"
-            android:layout_margin="@dimen/eightDP"
-            android:hint="@string/predicted_value_hint"/>
-
-        <Button
-            android:id="@+id/main_submit"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:layout_constraintBottom_toTopOf="@id/main_predicted_value_result_label"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:layout_margin="@dimen/eightDP"
-            android:text="@string/submit_label"
-            android:elevation="@dimen/fourDP"/>
+        </LinearLayout>
 
     </android.support.constraint.ConstraintLayout>
 

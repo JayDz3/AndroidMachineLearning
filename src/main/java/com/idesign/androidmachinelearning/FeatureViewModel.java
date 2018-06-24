@@ -11,14 +11,14 @@ public class FeatureViewModel extends ViewModel {
 
   public LiveData<List<FeatureItem>> getItems() {
     if (items == null) {
-      items = new MutableLiveData<List<FeatureItem>>();
+      items = new MutableLiveData<>();
     }
     return items;
   }
 
   public void setFeatureItems(List<FeatureItem> incoming) {
     if (items == null) {
-      items = new MutableLiveData<List<FeatureItem>>();
+      items = new MutableLiveData<>();
     }
     items.setValue(incoming);
   }
@@ -36,8 +36,10 @@ public class FeatureViewModel extends ViewModel {
     if (items == null) {
       return;
     }
-    if (items.getValue() != null && items.getValue().get(position) != null) {
+    if (items.getValue() != null) {
+      if (items.getValue().get(position) != null) {
         items.getValue().remove(position);
+      }
     }
   }
 }
