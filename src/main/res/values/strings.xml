@@ -19,4 +19,5 @@
     <string name="content_description_remove">Remove an ite </string>
 
     <string name="predicted_value_result_hint"> result </string>
+    <string name="dollar_sign"> $ </string>
 </resources>

@@ -1,19 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<android.support.constraint.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="horizontal"
-    android:baselineAligned="false"
     tools:context=".MainActivity">
 
     <android.support.constraint.ConstraintLayout
         android:id="@+id/main_value_linear_layout"
         android:layout_width="0dp"
         android:layout_height="match_parent"
-        android:layout_weight="2"
+        app:layout_constraintHorizontal_weight="2"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         android:layout_marginTop="@dimen/eightDP"
         android:layout_marginBottom="@dimen/eightDP">
 
@@ -51,7 +52,10 @@
         android:id="@+id/main_label_layout"
         android:layout_width="0dp"
         android:layout_height="match_parent"
-        android:layout_weight="5"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@id/main_value_linear_layout"
+        app:layout_constraintEnd_toEndOf="parent"
         android:layout_margin="@dimen/eightDP">
 
         <LinearLayout
@@ -132,7 +136,8 @@
             app:layout_constraintEnd_toEndOf="parent"
             android:layout_margin="@dimen/eightDP"
             android:text="@string/submit_label"
-            android:background="@drawable/clear_button"/>
+            android:elevation="@dimen/fourDP"/>
+
     </android.support.constraint.ConstraintLayout>
 
-</LinearLayout>
+</android.support.constraint.ConstraintLayout>

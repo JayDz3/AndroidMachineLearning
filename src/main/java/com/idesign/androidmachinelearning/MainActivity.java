@@ -10,15 +10,23 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.TextView;
 import android.widget.Toast;
+
+import com.idesign.androidmachinelearning.MachineLearning.FeaturesScaling;
+import com.idesign.androidmachinelearning.MachineLearning.Learner;
+import com.idesign.androidmachinelearning.MachineLearning.LinearRegressionFunction;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class MainActivity extends AppCompatActivity {
 
   Button submitButton;
   ImageButton addItemButton, removeItemButton;
+  TextView resultView;
   RecyclerView recyclerView;
   GridLayoutManager gridLayoutManager;
 
@@ -31,6 +39,8 @@ public class MainActivity extends AppCompatActivity {
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
+
+    resultView = findViewById(R.id.main_predicted_value_result);
 
     submitButton = findViewById(R.id.main_submit);
     addItemButton = findViewById(R.id.main_add_item_button);
@@ -60,13 +70,13 @@ public class MainActivity extends AppCompatActivity {
     };
     viewModel.getItems().observe(this, itemObserver);
 
-    addItemButton.setOnClickListener(l -> addItem(adapter));
+    addItemButton.setOnClickListener(l -> addItemToAdapter(adapter));
+
     removeItemButton.setOnClickListener(l -> removeItem(adapter));
     submitButton.setOnClickListener(l -> getAdapterValues(adapter));
-
   }
 
-  public void addItem(FeatureItemAdapter adapter) {
+  public void addItemToAdapter(FeatureItemAdapter adapter) {
     adapter.add(new FeatureItem(1.0, 0.0, 0.0, 0.0), adapter.getItemCount());
   }
 
@@ -75,7 +85,8 @@ public class MainActivity extends AppCompatActivity {
     if (position == 0) {
       return;
     }
-    adapter.removeItem(position -1);
+    adapter.removeItem(position - 1);
+    viewModel.removeFeatureItem(position - 1);
   }
 
   public void getAdapterValues(FeatureItemAdapter adapter) {
@@ -94,11 +105,13 @@ public class MainActivity extends AppCompatActivity {
       }
     }
 
-    viewModel.setModelItems(adapter.getItems());
+    viewModel.setFeatureItems(adapter.getItems());
+
     if (emptyValue) {
       return;
     }
     items = adapter.getItems();
+    runAlgorithm();
   }
 
   public View getView(int position) {
@@ -107,6 +120,47 @@ public class MainActivity extends AppCompatActivity {
 
   public FeatureItemAdapter.MyViewHolder getViewHolder(View view) {
     return (FeatureItemAdapter.MyViewHolder) recyclerView.getChildViewHolder(view);
+  }
+
+  /*==========================*
+   *    Learning Algorithm    *
+   *==========================*/
+
+
+  /*===================================================*
+   * Suggested Values                                  *
+   *                                                   *
+   * dataSet.add(new Double[] {1.0, 90.0, 8100.0});    *
+   * dataSet.add(new Double[] {1.0, 101.0, 10201.0});  *
+   * dataSet.add(new Double[] {1.0, 103.0, 10609.0});  *
+   *                                                   *
+   * labels.add(249.0);                                *
+   * labels.add(338.0);                                *
+   * labels.add(304.0);                                *
+   *===================================================*/
+
+  public void runAlgorithm() {
+    List<Double[]> dataSet = new ArrayList<>();
+    List<Double> labels = new ArrayList<>();
+    for (FeatureItem featureItem : items) {
+      dataSet.add(new Double[] {featureItem.getItemTheta(), featureItem.getItemFeatureOne(), featureItem.getItemFeatureTwo()});
+      labels.add(featureItem.getItemPredictedValue());
+    }
+
+    Function<Double[], Double[]> scalingFunc = FeaturesScaling.createFunction(dataSet);
+    List<Double[]> scaledDataSet = dataSet.stream().map(scalingFunc).collect(Collectors.toList());
+
+    LinearRegressionFunction targetFunction = new LinearRegressionFunction(new double[] {1.0, 1.0, 1.0});
+    for (int j = 0; j < 10000; j++) {
+      targetFunction = Learner.train(targetFunction, scaledDataSet, labels, 0.1);
+    }
+
+    // placeholder values for prediction until UI added to generate dynamic values //
+    // result ends up around 8500.********* at 10,000 iterations //
+
+    Double[] scaledFeatureVector = scalingFunc.apply(new Double[] {1.0, 600.0, 360000.0});
+    double predictedPrice = targetFunction.apply(scaledFeatureVector);
+    resultView.setText(String.valueOf(predictedPrice));
   }
 
   public void showToast(CharSequence message) {

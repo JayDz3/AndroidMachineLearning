@@ -76,8 +76,11 @@ public class FeatureItemAdapter extends RecyclerView.Adapter<FeatureItemAdapter.
   public void onBindViewHolder(@NonNull FeatureItemAdapter.MyViewHolder viewHolder, final int position) {
     final FeatureItem featureItem = items.get(position);
     if (featureItem != null) {
+      if (featureItem.getItemFeatureOne() != 0.0)
       viewHolder.featureOne.setText(String.valueOf(featureItem.getItemFeatureOne()));
+      if (featureItem.getItemFeatureTwo() != 0.0)
       viewHolder.featureTwo.setText(String.valueOf(featureItem.getItemFeatureTwo()));
+      if (featureItem.getItemPredictedValue() != 0.0)
       viewHolder.predictedValue.setText(String.valueOf(featureItem.getItemPredictedValue()));
     }
   }
