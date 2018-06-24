@@ -1,0 +1,22 @@
+<resources>
+    <string name="app_name">Android MachineLearning</string>
+    <string name="submit_label"> Submit </string>
+
+    <string name="items_label"> items </string>
+
+    <string name="feature_label_one"> Feature 1 </string>
+    <string name="feature_label_two"> Feature 2</string>
+    <string name="predicted_value_label"> Predicted Value </string>
+
+    <string name="value_label"> Value </string>
+
+    <string name="feature_one_hint"> 0.0 </string>
+    <string name="feature_two_hint"> 0.0 </string>
+
+    <string name="predicted_value_hint"> 0.0 </string>
+
+    <string name="content_description_add"> Add an item </string>
+    <string name="content_description_remove">Remove an ite </string>
+
+    <string name="predicted_value_result_hint"> result </string>
+</resources>

@@ -1,0 +1,6 @@
+<resources>
+    <dimen name="twoDP"> 2dp </dimen>
+    <dimen name="fourDP"> 4dp </dimen>
+    <dimen name="eightDP"> 8dp </dimen>
+    <dimen name="sixteenDP"> 16dp </dimen>
+</resources>
