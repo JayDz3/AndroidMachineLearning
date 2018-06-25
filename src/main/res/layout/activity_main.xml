@@ -198,10 +198,9 @@
             android:contentDescription="@string/content_description_remove"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:elevation="@dimen/fourDP"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/main_submit_button"
-            android:layout_marginEnd="@dimen/fourDP"
-            android:elevation="@dimen/fourDP"/>
+            app:layout_constraintEnd_toStartOf="@id/main_submit_button"/>
 
         <ImageButton
             android:id="@+id/main_submit_button"

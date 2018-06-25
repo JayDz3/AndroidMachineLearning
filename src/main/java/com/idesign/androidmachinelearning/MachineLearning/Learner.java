@@ -13,6 +13,7 @@ public class Learner {
     for (int j = 0; j < thetaVector.length; j++) {
 
       double sumErrors = 0;
+
       for (int i = 0; i < m; i++) {
         Double[] featureVector = dataset.get(i);
         double error = targetFunction.apply(featureVector) - labels.get(i);

@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -80,7 +81,9 @@ public class MainActivity extends AppCompatActivity {
     if (items.size() > 0) {
       int size = items.size();
       View v = recyclerView.getFocusedChild();
-      v.clearFocus();
+      if (v != null) {
+        v.clearFocus();
+      }
       for (int j = 0; j < size; j++) {
         View view = getView(j);
         FeatureItemAdapter.MyViewHolder vh = getViewHolder(view);
@@ -103,16 +106,20 @@ public class MainActivity extends AppCompatActivity {
     if (size == 0) {
       return;
     }
-    for (int j = 0; j < items.size(); j++) {
-      View view = getView(j);
+    View view = recyclerView.getFocusedChild();
+    if (view != null) {
       view.clearFocus();
     }
     int position = size - 1;
+    resetViewHolder(position);
+    items.remove(position);
+    viewModel.setFeatureItems(items);
+  }
+
+  public void resetViewHolder(int position) {
     View view = getView(position);
     FeatureItemAdapter.MyViewHolder viewHolder = getViewHolder(view);
     viewHolder.setToZero(items.get(position));
-    items.remove(position);
-    viewModel.setFeatureItems(items);
   }
 
   public void getAdapterValues() {
@@ -161,10 +168,7 @@ public class MainActivity extends AppCompatActivity {
     predictionValueTwo.setText("");
     if (items.size() > 0) {
       for (int j = 0; j < items.size(); j++) {
-        FeatureItem featureItem = items.get(j);
-        View view = getView(j);
-        FeatureItemAdapter.MyViewHolder viewHolder = getViewHolder(view);
-        viewHolder.setToZero(featureItem);
+       resetViewHolder(j);
       }
       items.clear();
       viewModel.setFeatureItems(items);
@@ -195,6 +199,8 @@ public class MainActivity extends AppCompatActivity {
   public void runAlgorithm(double valueOne, double valueTwo) {
     List<Double[]> dataSet = new ArrayList<>();
     List<Double> labels = new ArrayList<>();
+
+    int plotPoints = 0;
     int size = items.size();
     if (size < 1) {
       return;
@@ -213,17 +219,18 @@ public class MainActivity extends AppCompatActivity {
       dataSet.add(new Double[] {featureItem.getItemTheta(), featureItem.getItemFeatureOne(), featureItem.getItemFeatureTwo()});
       labels.add(featureItem.getItemPredictedValue());
     }
+    plotPoints = labels.size();
+    for (int j = 0; j < plotPoints; j++) {
+      Log.d("MAIN", "Plot point # " + j + " Label: " + labels.get(j));
+    }
 
     Function<Double[], Double[]> scalingFunc = FeaturesScaling.createFunction(dataSet);
     List<Double[]> scaledDataSet = dataSet.stream().map(scalingFunc).collect(Collectors.toList());
-
     LinearRegressionFunction targetFunction = new LinearRegressionFunction(new double[] {1.0, 1.0, 1.0});
+
     for (int j = 0; j < 10000; j++) {
       targetFunction = Learner.train(targetFunction, scaledDataSet, labels, 0.1);
     }
-
-    // placeholder values for prediction until UI added to generate dynamic values //
-    // result ends up around $8615.********* at 10,000 iterations with values of 600.0, 360,000.0//
 
     Double[] scaledFeatureVector = scalingFunc.apply(new Double[] {1.0, valueOne, valueTwo});
     double predictedPrice = targetFunction.apply(scaledFeatureVector);
