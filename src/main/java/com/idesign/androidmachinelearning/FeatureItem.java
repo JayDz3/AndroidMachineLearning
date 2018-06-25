@@ -18,9 +18,7 @@ public class FeatureItem {
     this.itemFeatureTwo = itemFeatureTwo;
   }
 
-  public void setPredictedValue(double itemPredictedValue) {
-    this.itemPredictedValue = itemPredictedValue;
-  }
+  public void setPredictedValue(double itemPredictedValue) { this.itemPredictedValue = itemPredictedValue; }
 
   public double getItemTheta() {
     return itemTheta;

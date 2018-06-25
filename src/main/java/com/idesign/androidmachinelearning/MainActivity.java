@@ -2,13 +2,11 @@ package com.idesign.androidmachinelearning;
 
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -26,7 +24,7 @@ import java.util.stream.Collectors;
 
 public class MainActivity extends AppCompatActivity {
 
-  ImageButton addItemButton, removeItemButton, submitButton;
+  ImageButton addItemButton, removeItemButton, submitButton, resetButton;
   EditText predictionValueOne, predictionValueTwo;
   TextView resultView;
   RecyclerView recyclerView;
@@ -47,6 +45,7 @@ public class MainActivity extends AppCompatActivity {
     predictionValueTwo = findViewById(R.id.main_predictor_value_two);
 
     submitButton = findViewById(R.id.main_submit_button);
+    resetButton = findViewById(R.id.main_reset_button);
     addItemButton = findViewById(R.id.main_add_item_button);
     removeItemButton = findViewById(R.id.main_remove_item_button);
 
@@ -54,47 +53,71 @@ public class MainActivity extends AppCompatActivity {
     gridLayoutManager = new GridLayoutManager(MainActivity.this, 1);
     recyclerView.setLayoutManager(gridLayoutManager);
 
-    items = new ArrayList<>();
     labels = new ArrayList<>();
+    items = new ArrayList<>();
+    viewModel = ViewModelProviders.of(this).get(FeatureViewModel.class);
+
     final FeatureItemAdapter adapter = new FeatureItemAdapter(items);
     recyclerView.setAdapter(adapter);
 
-    viewModel = ViewModelProviders.of(this).get(FeatureViewModel.class);
     final Observer<List<FeatureItem>> itemObserver = featureItems -> {
       if (featureItems == null) {
         return;
       }
-      for (FeatureItem item : featureItems) {
-       if (!adapter.getItems().contains(item)) {
-         int position = adapter.getItemCount();
-         int j = position - 1;
-         adapter.add(item, j);
-       }
-      }
+      items = featureItems;
+      adapter.setItems(items);
     };
     viewModel.getItems().observe(this, itemObserver);
 
-    addItemButton.setOnClickListener(l -> addItemToAdapter(adapter));
+    addItemButton.setOnClickListener(l -> addItemToAdapter());
 
-    removeItemButton.setOnClickListener(l -> removeItem(adapter));
-    submitButton.setOnClickListener(l -> getAdapterValues(adapter));
+    removeItemButton.setOnClickListener(l -> removeItem());
+    submitButton.setOnClickListener(l -> getAdapterValues());
+    resetButton.setOnClickListener(l -> clear());
   }
 
-  public void addItemToAdapter(FeatureItemAdapter adapter) {
-    adapter.add(new FeatureItem(1.0, 0.0, 0.0, 0.0), adapter.getItemCount());
+  public void addItemToAdapter() {
+    if (items.size() > 0) {
+      int size = items.size();
+      View v = recyclerView.getFocusedChild();
+      v.clearFocus();
+      for (int j = 0; j < size; j++) {
+        View view = getView(j);
+        FeatureItemAdapter.MyViewHolder vh = getViewHolder(view);
+        vh.setValues(items.get(j));
+      }
+      FeatureItem featureItem = items.get(size - 1);
+      if (featureItem.getItemFeatureOne() == 0.0 || featureItem.getItemFeatureTwo() == 0.0 || featureItem.getItemPredictedValue() == 0.0) {
+        return;
+      }
+      items.add(new FeatureItem(1.0, 0.0, 0.0, 0.0));
+      viewModel.setFeatureItems(items);
+    } else {
+      items.add(new FeatureItem(1.0, 0.0, 0.0, 0.0));
+      viewModel.setFeatureItems(items);
+    }
   }
 
-  public void removeItem(FeatureItemAdapter adapter) {
-    int position = adapter.getItemCount();
-    if (position == 0) {
+  public void removeItem() {
+    int size = items.size();
+    if (size == 0) {
       return;
     }
-    adapter.removeItem(position - 1);
-    viewModel.removeFeatureItem(position - 1);
+    for (int j = 0; j < items.size(); j++) {
+      View view = getView(j);
+      view.clearFocus();
+    }
+    int position = size - 1;
+    View view = getView(position);
+    FeatureItemAdapter.MyViewHolder viewHolder = getViewHolder(view);
+    viewHolder.setToZero(items.get(position));
+    items.remove(position);
+    viewModel.setFeatureItems(items);
   }
 
-  public void getAdapterValues(FeatureItemAdapter adapter) {
-    int size = adapter.getItemCount();
+  public void getAdapterValues() {
+    resultView.setText("");
+    int size = items.size();
     boolean emptyValue = false;
     if (size == 0) {
       return;
@@ -102,19 +125,15 @@ public class MainActivity extends AppCompatActivity {
     for (int j = 0; j < size; j++) {
       View view = getView(j);
       FeatureItemAdapter.MyViewHolder vh = getViewHolder(view);
-      FeatureItem item = adapter.items.get(j);
-      vh.setValues(item);
       if (vh.emptyValue()) {
         emptyValue = true;
       }
     }
-
-    viewModel.setFeatureItems(adapter.getItems());
-
     if (emptyValue) {
-      return;
+      int pos = size - 1;
+      items.remove(pos);
+      viewModel.setFeatureItems(items);
     }
-    items = adapter.getItems();
     if (validPredictionValues()) {
       double valueOne = Double.parseDouble(predictionValueOne.getText().toString());
       double valueTwo = Double.parseDouble(predictionValueTwo.getText().toString());
@@ -136,6 +155,22 @@ public class MainActivity extends AppCompatActivity {
     return !TextUtils.isEmpty(predictionValueOne.getText().toString()) && !TextUtils.isEmpty(predictionValueTwo.getText().toString());
   }
 
+  public void clear() {
+    resultView.setText("");
+    predictionValueOne.setText("");
+    predictionValueTwo.setText("");
+    if (items.size() > 0) {
+      for (int j = 0; j < items.size(); j++) {
+        FeatureItem featureItem = items.get(j);
+        View view = getView(j);
+        FeatureItemAdapter.MyViewHolder viewHolder = getViewHolder(view);
+        viewHolder.setToZero(featureItem);
+      }
+      items.clear();
+      viewModel.setFeatureItems(items);
+    }
+  }
+
   /*==========================*
    *    Learning Algorithm    *
    *==========================*/
@@ -153,9 +188,27 @@ public class MainActivity extends AppCompatActivity {
    * labels.add(304.0);                                *
    *===================================================*/
 
+  public boolean isEmptyItem(FeatureItem featureItem) {
+    return featureItem.getItemFeatureOne() == 0.0 || featureItem.getItemFeatureTwo() == 0.0 || featureItem.getItemPredictedValue() == 0.0;
+  }
+
   public void runAlgorithm(double valueOne, double valueTwo) {
     List<Double[]> dataSet = new ArrayList<>();
     List<Double> labels = new ArrayList<>();
+    int size = items.size();
+    if (size < 1) {
+      return;
+    }
+    int pos = size - 1;
+    FeatureItem emptyItem = items.get(pos);
+    if (isEmptyItem(emptyItem)) {
+      items.remove(emptyItem);
+      viewModel.setFeatureItems(items);
+    }
+    if (items.size() < 1) {
+      return;
+    }
+
     for (FeatureItem featureItem : items) {
       dataSet.add(new Double[] {featureItem.getItemTheta(), featureItem.getItemFeatureOne(), featureItem.getItemFeatureTwo()});
       labels.add(featureItem.getItemPredictedValue());
@@ -179,10 +232,6 @@ public class MainActivity extends AppCompatActivity {
 
   public void showToast(CharSequence message) {
     Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
-  }
-
-  public void logMessage(String message) {
-    Log.d("Main activity", message);
   }
 
   @Override

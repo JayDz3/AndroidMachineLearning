@@ -3,6 +3,7 @@ package com.idesign.androidmachinelearning;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -43,6 +44,15 @@ public class FeatureItemAdapter extends RecyclerView.Adapter<FeatureItemAdapter.
       item.setPredictedValue(val);
     }
 
+    public void setToZero(FeatureItem featureItem) {
+      featureItem.setFeatureOne(0.0);
+      featureItem.setFeatureTwo(0.0);
+      featureItem.setPredictedValue(0.0);
+      featureOne.setText("");
+      featureTwo.setText("");
+      predictedValue.setText("");
+    }
+
     private double getValue(EditText editText) {
       if (TextUtils.isEmpty(editText.getText().toString()))
         return 0.0;
@@ -51,18 +61,9 @@ public class FeatureItemAdapter extends RecyclerView.Adapter<FeatureItemAdapter.
     }
   }
 
-  public void add(FeatureItem item, int position) {
-    items.add(item);
-    notifyItemInserted(position);
-  }
-
-  public void removeItem(int position) {
-    items.remove(position);
-    notifyItemRemoved(position);
-  }
-
-  public List<FeatureItem> getItems() {
-    return this.items;
+  public void setItems(List<FeatureItem> items) {
+    this.items = items;
+    notifyDataSetChanged();
   }
 
   @Override
@@ -74,7 +75,7 @@ public class FeatureItemAdapter extends RecyclerView.Adapter<FeatureItemAdapter.
 
   @Override
   public void onBindViewHolder(@NonNull FeatureItemAdapter.MyViewHolder viewHolder, final int position) {
-    final FeatureItem featureItem = items.get(position);
+    FeatureItem featureItem = items.get(position);
     if (featureItem != null) {
       if (featureItem.getItemFeatureOne() != 0.0)
       viewHolder.featureOne.setText(String.valueOf(featureItem.getItemFeatureOne()));
@@ -83,6 +84,12 @@ public class FeatureItemAdapter extends RecyclerView.Adapter<FeatureItemAdapter.
       if (featureItem.getItemPredictedValue() != 0.0)
       viewHolder.predictedValue.setText(String.valueOf(featureItem.getItemPredictedValue()));
     }
+    viewHolder.itemView.requestFocus();
+  }
+
+  @Override
+  public void onDetachedFromRecyclerView(@NonNull RecyclerView recyclerView) {
+    Log.d("ADAPTER", "DETACH FROM RECYCLER VIEW");
   }
 
   @Override
