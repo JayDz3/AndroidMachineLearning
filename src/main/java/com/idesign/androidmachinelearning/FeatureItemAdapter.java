@@ -34,19 +34,27 @@ public class FeatureItemAdapter extends RecyclerView.Adapter<FeatureItemAdapter.
           || TextUtils.isEmpty(predictedValueEditText.getText().toString());
     }
 
-    public void setValues(FeatureItem item) {
-      item.setFeatureOne(getValue(featureOneEditText));
-      item.setFeatureTwo(getValue(featureTwoEditText));
-      item.setPredictedValue(getValue(predictedValueEditText));
+    public void setValues(FeatureItem featureItem) {
+      featureItem.setFeatureOne(getValue(featureOneEditText));
+      featureItem.setFeatureTwo(getValue(featureTwoEditText));
+      featureItem.setPredictedValue(getValue(predictedValueEditText));
     }
 
     public void setToZero(FeatureItem featureItem) {
+      clearValues(featureItem);
+      clearFields(featureOneEditText, featureTwoEditText, predictedValueEditText);
+    }
+
+    private void clearValues(FeatureItem featureItem) {
       featureItem.setFeatureOne(0.0);
       featureItem.setFeatureTwo(0.0);
       featureItem.setPredictedValue(0.0);
-      featureOneEditText.setText("");
-      featureTwoEditText.setText("");
-      predictedValueEditText.setText("");
+    }
+
+    private void clearFields(EditText... editTexts) {
+      for (EditText editText : editTexts) {
+        editText.setText("");
+      }
     }
 
     private double getValue(EditText editText) {
@@ -78,7 +86,6 @@ public class FeatureItemAdapter extends RecyclerView.Adapter<FeatureItemAdapter.
       screenFeatureItemValue(featureItem.getItemFeatureTwo(), viewHolder.featureTwoEditText);
       screenFeatureItemValue(featureItem.getItemPredictedValue(), viewHolder.predictedValueEditText);
     }
-    
     viewHolder.itemView.requestFocus();
   }
 

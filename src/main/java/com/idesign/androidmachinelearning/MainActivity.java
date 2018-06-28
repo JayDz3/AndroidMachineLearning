@@ -102,7 +102,7 @@ public class MainActivity extends AppCompatActivity {
     return featureItem.getItemFeatureOne() == 0.0 || featureItem.getItemFeatureTwo() == 0.0 || featureItem.getItemPredictedValue() == 0.0;
   }
 
-  public void clearView() {
+  public void clearViewFocus() {
     View focusedView = recyclerView.getFocusedChild();
     if (focusedView != null) {
       focusedView.clearFocus();
@@ -124,7 +124,7 @@ public class MainActivity extends AppCompatActivity {
   }
 
   public void setValuesAndClearView(int size) {
-    clearView();
+    clearViewFocus();
     for (int j = 0; j < size; j++) {
       FeatureItemAdapter.MyViewHolder vh = getViewHolder(j);
       vh.setValues(items.get(j));
@@ -140,7 +140,7 @@ public class MainActivity extends AppCompatActivity {
     if (size == 0) {
       return;
     }
-    clearView();
+    clearViewFocus();
     final int position = size - 1;
     resetViewHolder(position);
     items.remove(position);
@@ -148,7 +148,7 @@ public class MainActivity extends AppCompatActivity {
   }
 
   public void getAdapterValues() {
-    clearText(resultView);
+    clearTextViews(resultView);
     final int size = items.size();
     final int pos = size - 1;
     boolean emptyValue = false;
@@ -192,9 +192,7 @@ public class MainActivity extends AppCompatActivity {
   }
 
   public void clearItems() {
-    clearText(resultView);
-    clearText(predictionValueOne);
-    clearText(predictionValueTwo);
+    clearTextViews(resultView, predictionValueOne, predictionValueTwo);
     if (items.size() == 0) {
       return;
     }
@@ -205,8 +203,10 @@ public class MainActivity extends AppCompatActivity {
     viewModel.setFeatureItems(items);
   }
 
-  public void clearText(TextView textView) {
-    textView.setText("");
+  public void clearTextViews(TextView... textViews) {
+    for (TextView textView : textViews) {
+      textView.setText("");
+    }
   }
 
   /*==========================*
