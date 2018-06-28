@@ -4,7 +4,8 @@ import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.GridLayoutManager;
+
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.util.Log;
@@ -29,10 +30,8 @@ public class MainActivity extends AppCompatActivity {
   EditText predictionValueOne, predictionValueTwo;
   TextView resultView;
   RecyclerView recyclerView;
-  GridLayoutManager gridLayoutManager;
 
   List<FeatureItem> items;
-  List<Double> labels;
 
   private FeatureViewModel viewModel;
 
@@ -40,7 +39,27 @@ public class MainActivity extends AppCompatActivity {
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
+    setView();
+    setItems();
+    setClickListeners();
 
+    final FeatureItemAdapter adapter = new FeatureItemAdapter(items);
+    recyclerView.setAdapter(adapter);
+
+    final Observer<List<FeatureItem>> itemObserver = featureItems -> setViewModel(adapter, featureItems);
+    viewModel.getItems().observe(this, itemObserver);
+  }
+
+  public void setViewModel(FeatureItemAdapter adapter, List<FeatureItem> featureItems) {
+    if (featureItems == null) {
+      return;
+    }
+    items = featureItems;
+    adapter.setItems(items);
+  }
+
+
+  public void setView() {
     resultView = findViewById(R.id.main_predicted_value_result);
     predictionValueOne = findViewById(R.id.main_predictor_value_one);
     predictionValueTwo = findViewById(R.id.main_predictor_value_two);
@@ -51,95 +70,103 @@ public class MainActivity extends AppCompatActivity {
     removeItemButton = findViewById(R.id.main_remove_item_button);
 
     recyclerView = findViewById(R.id.main_recycler_view);
-    gridLayoutManager = new GridLayoutManager(MainActivity.this, 1);
-    recyclerView.setLayoutManager(gridLayoutManager);
+    recyclerView.setLayoutManager(new LinearLayoutManager(this));
+  }
 
-    labels = new ArrayList<>();
+  public void setItems() {
     items = new ArrayList<>();
     viewModel = ViewModelProviders.of(this).get(FeatureViewModel.class);
+  }
 
-    final FeatureItemAdapter adapter = new FeatureItemAdapter(items);
-    recyclerView.setAdapter(adapter);
-
-    final Observer<List<FeatureItem>> itemObserver = featureItems -> {
-      if (featureItems == null) {
-        return;
-      }
-      items = featureItems;
-      adapter.setItems(items);
-    };
-    viewModel.getItems().observe(this, itemObserver);
-
+  public void setClickListeners() {
     addItemButton.setOnClickListener(l -> addItemToAdapter());
-
     removeItemButton.setOnClickListener(l -> removeItem());
     submitButton.setOnClickListener(l -> getAdapterValues());
-    resetButton.setOnClickListener(l -> clear());
+    resetButton.setOnClickListener(l -> clearItems());
+  }
+
+  public boolean validPredictionValues() {
+    return !TextUtils.isEmpty(predictionValueOne.getText().toString()) && !TextUtils.isEmpty(predictionValueTwo.getText().toString());
+  }
+
+  public boolean sizeIsZero(int size) {
+    if (size == 0) {
+      addFeatureItem();
+      viewModel.setFeatureItems(items);
+      return true;
+    }
+    return false;
+  }
+
+  public boolean isEmptyItem(FeatureItem featureItem) {
+    return featureItem.getItemFeatureOne() == 0.0 || featureItem.getItemFeatureTwo() == 0.0 || featureItem.getItemPredictedValue() == 0.0;
+  }
+
+  public void clearView() {
+    View focusedView = recyclerView.getFocusedChild();
+    if (focusedView != null) {
+      focusedView.clearFocus();
+    }
   }
 
   public void addItemToAdapter() {
-    if (items.size() > 0) {
-      int size = items.size();
-      View v = recyclerView.getFocusedChild();
-      if (v != null) {
-        v.clearFocus();
-      }
-      for (int j = 0; j < size; j++) {
-        View view = getView(j);
-        FeatureItemAdapter.MyViewHolder vh = getViewHolder(view);
-        vh.setValues(items.get(j));
-      }
-      FeatureItem featureItem = items.get(size - 1);
-      if (featureItem.getItemFeatureOne() == 0.0 || featureItem.getItemFeatureTwo() == 0.0 || featureItem.getItemPredictedValue() == 0.0) {
-        return;
-      }
-      items.add(new FeatureItem(1.0, 0.0, 0.0, 0.0));
-      viewModel.setFeatureItems(items);
-    } else {
-      items.add(new FeatureItem(1.0, 0.0, 0.0, 0.0));
-      viewModel.setFeatureItems(items);
+    int size = items.size();
+    if (sizeIsZero(size)) {
+      return;
+    }
+    setValuesAndClearView(size);
+    FeatureItem featureItem = items.get(size - 1);
+    if (isEmptyItem(featureItem)) {
+      return;
+    }
+    addFeatureItem();
+    viewModel.setFeatureItems(items);
+  }
+
+  public void setValuesAndClearView(int size) {
+    clearView();
+    for (int j = 0; j < size; j++) {
+      FeatureItemAdapter.MyViewHolder vh = getViewHolder(j);
+      vh.setValues(items.get(j));
     }
   }
 
+  public void addFeatureItem() {
+    items.add(new FeatureItem(1.0, 0.0, 0.0, 0.0));
+  }
+
   public void removeItem() {
-    int size = items.size();
+    final int size = items.size();
     if (size == 0) {
       return;
     }
-    View view = recyclerView.getFocusedChild();
-    if (view != null) {
-      view.clearFocus();
-    }
-    int position = size - 1;
+    clearView();
+    final int position = size - 1;
     resetViewHolder(position);
     items.remove(position);
     viewModel.setFeatureItems(items);
   }
 
-  public void resetViewHolder(int position) {
-    View view = getView(position);
-    FeatureItemAdapter.MyViewHolder viewHolder = getViewHolder(view);
-    viewHolder.setToZero(items.get(position));
-  }
-
   public void getAdapterValues() {
-    resultView.setText("");
-    int size = items.size();
+    clearText(resultView);
+    final int size = items.size();
+    final int pos = size - 1;
     boolean emptyValue = false;
     if (size == 0) {
       return;
     }
     for (int j = 0; j < size; j++) {
-      View view = getView(j);
-      FeatureItemAdapter.MyViewHolder vh = getViewHolder(view);
+      FeatureItemAdapter.MyViewHolder vh = getViewHolder(j);
       if (vh.emptyValue()) {
         emptyValue = true;
       }
     }
     if (emptyValue) {
-      int pos = size - 1;
-      items.remove(pos);
-      viewModel.setFeatureItems(items);
+      removeEmptyItem(pos);
+    }
+    if (items.size() == 0) {
+      showToast("There is no valid data to assess");
+      return;
     }
     if (validPredictionValues()) {
       double valueOne = Double.parseDouble(predictionValueOne.getText().toString());
@@ -150,29 +177,36 @@ public class MainActivity extends AppCompatActivity {
     }
   }
 
-  public View getView(int position) {
-    return recyclerView.getLayoutManager().getChildAt(position);
+  public void removeEmptyItem(int pos) {
+    items.remove(pos);
+    viewModel.setFeatureItems(items);
   }
 
-  public FeatureItemAdapter.MyViewHolder getViewHolder(View view) {
-    return (FeatureItemAdapter.MyViewHolder) recyclerView.getChildViewHolder(view);
+  public void resetViewHolder(int position) {
+    FeatureItemAdapter.MyViewHolder viewHolder = getViewHolder(position);
+    viewHolder.setToZero(items.get(position));
   }
 
-  public boolean validPredictionValues() {
-    return !TextUtils.isEmpty(predictionValueOne.getText().toString()) && !TextUtils.isEmpty(predictionValueTwo.getText().toString());
+  public FeatureItemAdapter.MyViewHolder getViewHolder(int position) {
+    return (FeatureItemAdapter.MyViewHolder) recyclerView.getChildViewHolder(recyclerView.getChildAt(position));
   }
 
-  public void clear() {
-    resultView.setText("");
-    predictionValueOne.setText("");
-    predictionValueTwo.setText("");
-    if (items.size() > 0) {
-      for (int j = 0; j < items.size(); j++) {
-       resetViewHolder(j);
-      }
-      items.clear();
-      viewModel.setFeatureItems(items);
+  public void clearItems() {
+    clearText(resultView);
+    clearText(predictionValueOne);
+    clearText(predictionValueTwo);
+    if (items.size() == 0) {
+      return;
     }
+    for (int j = 0; j < items.size(); j++) {
+      resetViewHolder(j);
+    }
+    items.clear();
+    viewModel.setFeatureItems(items);
+  }
+
+  public void clearText(TextView textView) {
+    textView.setText("");
   }
 
   /*==========================*
@@ -192,49 +226,50 @@ public class MainActivity extends AppCompatActivity {
    * labels.add(304.0);                                *
    *===================================================*/
 
-  public boolean isEmptyItem(FeatureItem featureItem) {
-    return featureItem.getItemFeatureOne() == 0.0 || featureItem.getItemFeatureTwo() == 0.0 || featureItem.getItemPredictedValue() == 0.0;
-  }
-
   public void runAlgorithm(double valueOne, double valueTwo) {
     List<Double[]> dataSet = new ArrayList<>();
-    List<Double> labels = new ArrayList<>();
+    List<Double> dataLabels = new ArrayList<>();
 
-    int plotPoints = 0;
-    int size = items.size();
+    int plotPoints;
+    final int size = items.size();
+    final int pos = size - 1;
+
     if (size < 1) {
       return;
     }
-    int pos = size - 1;
-    FeatureItem emptyItem = items.get(pos);
-    if (isEmptyItem(emptyItem)) {
-      items.remove(emptyItem);
-      viewModel.setFeatureItems(items);
+    if (isEmptyItem(items.get(pos))) {
+      removeEmptyItem(pos);
     }
     if (items.size() < 1) {
       return;
     }
 
-    for (FeatureItem featureItem : items) {
-      dataSet.add(new Double[] {featureItem.getItemTheta(), featureItem.getItemFeatureOne(), featureItem.getItemFeatureTwo()});
-      labels.add(featureItem.getItemPredictedValue());
-    }
-    plotPoints = labels.size();
-    for (int j = 0; j < plotPoints; j++) {
-      Log.d("MAIN", "Plot point # " + j + " Label: " + labels.get(j));
-    }
+    addFeatureItemsToDataset(dataSet, dataLabels);
+    plotPoints = dataLabels.size();
+    logMessage("plot points: " + plotPoints);
 
     Function<Double[], Double[]> scalingFunc = FeaturesScaling.createFunction(dataSet);
     List<Double[]> scaledDataSet = dataSet.stream().map(scalingFunc).collect(Collectors.toList());
     LinearRegressionFunction targetFunction = new LinearRegressionFunction(new double[] {1.0, 1.0, 1.0});
 
     for (int j = 0; j < 10000; j++) {
-      targetFunction = Learner.train(targetFunction, scaledDataSet, labels, 0.1);
+      targetFunction = Learner.train(targetFunction, scaledDataSet, dataLabels, 0.1);
     }
 
     Double[] scaledFeatureVector = scalingFunc.apply(new Double[] {1.0, valueOne, valueTwo});
     double predictedPrice = targetFunction.apply(scaledFeatureVector);
     resultView.setText(String.valueOf(predictedPrice));
+  }
+
+  public void addFeatureItemsToDataset(List<Double[]> dataSet, List<Double> dataLabels) {
+    for (FeatureItem featureItem : items) {
+      dataSet.add(new Double[] { featureItem.getItemTheta(), featureItem.getItemFeatureOne(), featureItem.getItemFeatureTwo() });
+      dataLabels.add(featureItem.getItemPredictedValue());
+    }
+  }
+
+  public void logMessage(String message) {
+    Log.d("Main Activity", message);
   }
 
   public void showToast(CharSequence message) {
