@@ -1,18 +1,24 @@
 package com.idesign.androidmachinelearning;
 
 import android.support.annotation.NonNull;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 
+import com.idesign.androidmachinelearning.Interfaces.OnAddItem;
+import com.idesign.androidmachinelearning.Interfaces.OnAddItems;
+import com.idesign.androidmachinelearning.Interfaces.OnSetItems;
+
+import java.util.Collections;
 import java.util.List;
 
-public class FeatureItemAdapter extends RecyclerView.Adapter<FeatureItemAdapter.MyViewHolder> {
+public class FeatureItemAdapter extends RecyclerView.Adapter<FeatureItemAdapter.MyViewHolder> implements
+OnAddItems<FeatureItem>,
+OnAddItem<FeatureItem>,
+OnSetItems<FeatureItem> {
 
   private List<FeatureItem> items;
 
@@ -67,9 +73,16 @@ public class FeatureItemAdapter extends RecyclerView.Adapter<FeatureItemAdapter.
     }
   }
 
-  public void setItems(List<FeatureItem> items) {
+  public void setItemsTest(List<FeatureItem> items) {
     this.items = items;
-    notifyDataSetChanged();
+  }
+
+  public List<FeatureItem> getItems() {
+    return items;
+  }
+
+  public FeatureItem getItemAtPosition(int position) {
+    return items.get(position);
   }
 
   @Override
@@ -105,5 +118,21 @@ public class FeatureItemAdapter extends RecyclerView.Adapter<FeatureItemAdapter.
   @Override
   public int getItemCount() {
     return items.size();
+  }
+
+  /*====================*
+   * Override OnAddItem *
+   *====================*/
+  public void addItem(List<FeatureItem> items, FeatureItem featureItem) {
+    items.add(featureItem);
+  }
+
+  public void addAllItems(List<FeatureItem> items, FeatureItem[] featureItems) {
+    Collections.addAll(items, featureItems);
+  }
+
+  public void setItemsBy(List<FeatureItem> source) {
+    this.items = source;
+    notifyDataSetChanged();
   }
 }

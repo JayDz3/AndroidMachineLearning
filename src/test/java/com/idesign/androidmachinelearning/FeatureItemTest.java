@@ -8,7 +8,7 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
 public class FeatureItemTest {
-  private FeatureItem featureItem = new FeatureItem(0.0, 0.0, 0.0, 0.0);
+  private FeatureItem featureItem = new FeatureItem(1.0, 0.0, 0.0, 0.0);
   private double baseValue = 0.0;
   private double doubleOne = 1.0;
   private double doubleTwo = 2.0;
@@ -39,7 +39,7 @@ public class FeatureItemTest {
 
   @Test
   public void featureItem_baseItemTheta_baseValue() {
-    assertThat(featureItem.getItemTheta(), is(baseValue));
+    assertThat(featureItem.getItemTheta(), is(doubleOne));
   }
 
   @Test

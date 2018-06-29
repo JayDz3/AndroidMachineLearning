@@ -55,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
       return;
     }
     items = featureItems;
-    adapter.setItems(items);
+    adapter.setItemsBy(items);
   }
 
 
@@ -92,7 +92,7 @@ public class MainActivity extends AppCompatActivity {
   public boolean sizeIsZero(int size) {
     if (size == 0) {
       addFeatureItem();
-      viewModel.setFeatureItems(items);
+      viewModel.setItemsBy(items);
       return true;
     }
     return false;
@@ -120,7 +120,7 @@ public class MainActivity extends AppCompatActivity {
       return;
     }
     addFeatureItem();
-    viewModel.setFeatureItems(items);
+    viewModel.setItemsBy(items);
   }
 
   public void setValuesAndClearView(int size) {
@@ -144,7 +144,7 @@ public class MainActivity extends AppCompatActivity {
     final int position = size - 1;
     resetViewHolder(position);
     items.remove(position);
-    viewModel.setFeatureItems(items);
+    viewModel.setItemsBy(items);
   }
 
   public void getAdapterValues() {
@@ -179,7 +179,7 @@ public class MainActivity extends AppCompatActivity {
 
   public void removeEmptyItem(int pos) {
     items.remove(pos);
-    viewModel.setFeatureItems(items);
+    viewModel.setItemsBy(items);
   }
 
   public void resetViewHolder(int position) {
@@ -200,7 +200,7 @@ public class MainActivity extends AppCompatActivity {
       resetViewHolder(j);
     }
     items.clear();
-    viewModel.setFeatureItems(items);
+    viewModel.setItemsBy(items);
   }
 
   public void clearTextViews(TextView... textViews) {
