@@ -37,4 +37,12 @@ package com.idesign.androidmachinelearning;
   public double getItemPredictedValue() {
     return itemPredictedValue;
   }
+
+  public double[] getAllvalues() {
+    return new double[] {getItemTheta(), getItemFeatureOne(), getItemFeatureTwo(), getItemPredictedValue()};
+  }
+
+  public double[] getItemValues() {
+    return new double[] {getItemFeatureOne(), getItemFeatureTwo(), getItemPredictedValue() };
+  }
 }

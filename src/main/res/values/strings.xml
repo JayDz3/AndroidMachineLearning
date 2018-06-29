@@ -12,12 +12,10 @@
 
     <string name="feature_one_hint"> 0.0 </string>
     <string name="feature_two_hint"> 0.0 </string>
-
     <string name="predicted_value_hint"> 0.0 </string>
+    <string name="predicted_value_result_hint"> RESULT </string>
+    <string name="predictor_label">PREDICTION</string>
 
     <string name="content_description_add"> Add an item </string>
     <string name="content_description_remove">Remove an item </string>
-
-    <string name="predicted_value_result_hint"> RESULT </string>
-    <string name="predictor_label">PREDICTION</string>
 </resources>

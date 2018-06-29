@@ -1,8 +1,10 @@
 package com.idesign.androidmachinelearning;
 
 import android.support.annotation.NonNull;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -80,13 +82,14 @@ public class FeatureItemAdapter extends RecyclerView.Adapter<FeatureItemAdapter.
   @Override
   public void onBindViewHolder(@NonNull FeatureItemAdapter.MyViewHolder viewHolder, final int position) {
     final FeatureItem featureItem = items.get(position);
-
     if (featureItem != null) {
       screenFeatureItemValue(featureItem.getItemFeatureOne(), viewHolder.featureOneEditText);
       screenFeatureItemValue(featureItem.getItemFeatureTwo(), viewHolder.featureTwoEditText);
       screenFeatureItemValue(featureItem.getItemPredictedValue(), viewHolder.predictedValueEditText);
     }
-    viewHolder.itemView.requestFocus();
+    if (position == items.size() -1) {
+      viewHolder.itemView.requestFocus();
+    }
   }
 
   private void screenFeatureItemValue(double value, EditText editText) {
