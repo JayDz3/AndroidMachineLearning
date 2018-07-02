@@ -8,7 +8,6 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -39,10 +38,11 @@ public class MainActivity extends AppCompatActivity {
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
-    setView();
-    setItems();
+    setViews();
     setClickListeners();
 
+    items = new ArrayList<>();
+    viewModel = ViewModelProviders.of(this).get(FeatureViewModel.class);
     final FeatureItemAdapter adapter = new FeatureItemAdapter(items);
     recyclerView.setAdapter(adapter);
 
@@ -51,31 +51,22 @@ public class MainActivity extends AppCompatActivity {
   }
 
   public void setViewModel(FeatureItemAdapter adapter, List<FeatureItem> featureItems) {
-    if (featureItems == null) {
-      return;
+    if (featureItems != null) {
+      items = featureItems;
+      adapter.setItemsBy(items);
     }
-    items = featureItems;
-    adapter.setItemsBy(items);
   }
 
-
-  public void setView() {
+  public void setViews() {
     resultView = findViewById(R.id.main_predicted_value_result);
     predictionValueOne = findViewById(R.id.main_predictor_value_one);
     predictionValueTwo = findViewById(R.id.main_predictor_value_two);
-
     submitButton = findViewById(R.id.main_submit_button);
     resetButton = findViewById(R.id.main_reset_button);
     addItemButton = findViewById(R.id.main_add_item_button);
     removeItemButton = findViewById(R.id.main_remove_item_button);
-
     recyclerView = findViewById(R.id.main_recycler_view);
     recyclerView.setLayoutManager(new LinearLayoutManager(this));
-  }
-
-  public void setItems() {
-    items = new ArrayList<>();
-    viewModel = ViewModelProviders.of(this).get(FeatureViewModel.class);
   }
 
   public void setClickListeners() {
@@ -89,6 +80,10 @@ public class MainActivity extends AppCompatActivity {
     return !TextUtils.isEmpty(predictionValueOne.getText().toString()) && !TextUtils.isEmpty(predictionValueTwo.getText().toString());
   }
 
+  /*=================================================================*
+   *  No items are present, this adds first but does not set values  *
+   *  of previous item (since it does not exist)                     *
+   *=================================================================*/
   public boolean sizeIsZero(int size) {
     if (size == 0) {
       addFeatureItem();
@@ -98,74 +93,77 @@ public class MainActivity extends AppCompatActivity {
     return false;
   }
 
+  /*===================================================*
+   *  all values have not been entered, so delete it   *
+   *===================================================*/
+
   public boolean isEmptyItem(FeatureItem featureItem) {
     return featureItem.getItemFeatureOne() == 0.0 || featureItem.getItemFeatureTwo() == 0.0 || featureItem.getItemPredictedValue() == 0.0;
   }
 
-  public void clearViewFocus() {
+  /*=================================================================*
+   * If an item is already on the page, remove focus from it         *
+   * also add a new item, which will request focus and set viewModel *
+   *=================================================================*/
+  public void addItemToAdapter() {
+    int size = items.size();
+    if (!sizeIsZero(size)) {
+      removeFocus();
+      for (int j = 0; j < size; j++) {
+        FeatureItemAdapter.MyViewHolder vh = getViewHolder(j);
+        vh.setValues(items.get(j));
+      }
+      if (!isEmptyItem(items.get(size - 1))) {
+        addFeatureItem();
+        viewModel.setItemsBy(items);
+      }
+    }
+  }
+
+  /*==========================*
+   *  Add blank feature Item  *
+   *==========================*/
+  public void addFeatureItem() {
+    items.add(new FeatureItem(1.0, 0.0, 0.0, 0.0));
+  }
+
+  /*=============================*
+   * If size is zero, do nothing *
+   *=============================*/
+  public void removeItem() {
+    final int size = items.size();
+    final int position = size - 1;
+    if (size == 0) {
+      return;
+    }
+    removeFocus();
+    FeatureItemAdapter.MyViewHolder viewHolder = getViewHolder(position);
+    viewHolder.setValuesToZero(items.get(position));
+    items.remove(position);
+    viewModel.setItemsBy(items);
+  }
+
+  /*==================================*
+   *  Remove cursor from current row  *
+   *==================================*/
+  public void removeFocus() {
     View focusedView = recyclerView.getFocusedChild();
     if (focusedView != null) {
       focusedView.clearFocus();
     }
   }
 
-  public void addItemToAdapter() {
-    int size = items.size();
-    if (sizeIsZero(size)) {
-      return;
-    }
-    setValuesAndClearView(size);
-    FeatureItem featureItem = items.get(size - 1);
-    if (isEmptyItem(featureItem)) {
-      return;
-    }
-    addFeatureItem();
-    viewModel.setItemsBy(items);
-  }
-
-  public void setValuesAndClearView(int size) {
-    clearViewFocus();
-    for (int j = 0; j < size; j++) {
-      FeatureItemAdapter.MyViewHolder vh = getViewHolder(j);
-      vh.setValues(items.get(j));
-    }
-  }
-
-  public void addFeatureItem() {
-    items.add(new FeatureItem(1.0, 0.0, 0.0, 0.0));
-  }
-
-  public void removeItem() {
-    final int size = items.size();
-    if (size == 0) {
-      return;
-    }
-    clearViewFocus();
-    final int position = size - 1;
-    resetViewHolder(position);
-    items.remove(position);
-    viewModel.setItemsBy(items);
-  }
-
+  /*========================================*
+   *  Run the algorithm if all checks pass  *
+   *========================================*/
   public void getAdapterValues() {
     clearTextViews(resultView);
     final int size = items.size();
     final int pos = size - 1;
-    boolean emptyValue = false;
     if (size == 0) {
       return;
     }
-    for (int j = 0; j < size; j++) {
-      FeatureItemAdapter.MyViewHolder vh = getViewHolder(j);
-      if (vh.emptyValue()) {
-        emptyValue = true;
-      }
-    }
-    if (emptyValue) {
-      removeEmptyItem(pos);
-    }
-    if (items.size() == 0) {
-      showToast("There is no valid data to assess");
+    if (emptyItemClearsList(pos)) {
       return;
     }
     if (validPredictionValues()) {
@@ -177,30 +175,39 @@ public class MainActivity extends AppCompatActivity {
     }
   }
 
-  public void removeEmptyItem(int pos) {
-    items.remove(pos);
+  /*======================================================================*
+   *  Returns true if removing last item leaves no items in adapter list  *
+   *======================================================================*/
+  public boolean emptyItemClearsList(int pos) {
+    FeatureItem featureItem = items.get(pos);
+    if (isEmptyItem(featureItem)) {
+      items.remove(pos);
+    }
     viewModel.setItemsBy(items);
-  }
-
-  public void resetViewHolder(int position) {
-    FeatureItemAdapter.MyViewHolder viewHolder = getViewHolder(position);
-    viewHolder.setToZero(items.get(position));
+    if (pos == 0) {
+      showToast("There is no valid data to assess");
+      return true;
+    }
+    return false;
   }
 
   public FeatureItemAdapter.MyViewHolder getViewHolder(int position) {
     return (FeatureItemAdapter.MyViewHolder) recyclerView.getChildViewHolder(recyclerView.getChildAt(position));
   }
 
+  /*=================================*
+   *  Sets all items values to 0.0   *
+   *=================================*/
   public void clearItems() {
     clearTextViews(resultView, predictionValueOne, predictionValueTwo);
-    if (items.size() == 0) {
-      return;
+    if (items.size() != 0) {
+      for (int j = 0; j < items.size(); j++) {
+        FeatureItemAdapter.MyViewHolder viewHolder = getViewHolder(j);
+        viewHolder.setValuesToZero(items.get(j));
+      }
+      items.clear();
+      viewModel.setItemsBy(items);
     }
-    for (int j = 0; j < items.size(); j++) {
-      resetViewHolder(j);
-    }
-    items.clear();
-    viewModel.setItemsBy(items);
   }
 
   public void clearTextViews(TextView... textViews) {
@@ -212,41 +219,18 @@ public class MainActivity extends AppCompatActivity {
   /*==========================*
    *    Learning Algorithm    *
    *==========================*/
-
-
-  /*===================================================*
-   * Suggested Values                                  *
-   *                                                   *
-   * dataSet.add(new Double[] {1.0, 90.0, 8100.0});    *
-   * dataSet.add(new Double[] {1.0, 101.0, 10201.0});  *
-   * dataSet.add(new Double[] {1.0, 103.0, 10609.0});  *
-   *                                                   *
-   * labels.add(249.0);                                *
-   * labels.add(338.0);                                *
-   * labels.add(304.0);                                *
-   *===================================================*/
-
   public void runAlgorithm(double valueOne, double valueTwo) {
     List<Double[]> dataSet = new ArrayList<>();
     List<Double> dataLabels = new ArrayList<>();
-
-    int plotPoints;
     final int size = items.size();
     final int pos = size - 1;
-
     if (size < 1) {
       return;
     }
-    if (isEmptyItem(items.get(pos))) {
-      removeEmptyItem(pos);
-    }
-    if (items.size() < 1) {
+    if (emptyItemClearsList(pos)) {
       return;
     }
-
     addFeatureItemsToDataset(dataSet, dataLabels);
-    plotPoints = dataLabels.size();
-    logMessage("plot points: " + plotPoints);
 
     Function<Double[], Double[]> scalingFunc = FeaturesScaling.createFunction(dataSet);
     List<Double[]> scaledDataSet = dataSet.stream().map(scalingFunc).collect(Collectors.toList());
@@ -266,10 +250,6 @@ public class MainActivity extends AppCompatActivity {
       dataSet.add(new Double[] { featureItem.getItemTheta(), featureItem.getItemFeatureOne(), featureItem.getItemFeatureTwo() });
       dataLabels.add(featureItem.getItemPredictedValue());
     }
-  }
-
-  public void logMessage(String message) {
-    Log.d("Main Activity", message);
   }
 
   public void showToast(CharSequence message) {

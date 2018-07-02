@@ -9,7 +9,6 @@ public class Learner {
     double[] thetaVector = targetFunction.getThetas();
     double[] newThetaVector = new double[thetaVector.length];
 
-    // compute new theta of each element of the theta array
     for (int j = 0; j < thetaVector.length; j++) {
 
       double sumErrors = 0;

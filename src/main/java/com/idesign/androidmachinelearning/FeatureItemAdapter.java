@@ -36,19 +36,13 @@ OnSetItems<FeatureItem> {
       predictedValueEditText = view.findViewById(R.id.feature_layout_predicted_value);
     }
 
-    public boolean emptyValue() {
-      return TextUtils.isEmpty(featureOneEditText.getText().toString())
-          || TextUtils.isEmpty(featureTwoEditText.getText().toString())
-          || TextUtils.isEmpty(predictedValueEditText.getText().toString());
-    }
-
     public void setValues(FeatureItem featureItem) {
       featureItem.setFeatureOne(getValue(featureOneEditText));
       featureItem.setFeatureTwo(getValue(featureTwoEditText));
       featureItem.setPredictedValue(getValue(predictedValueEditText));
     }
 
-    public void setToZero(FeatureItem featureItem) {
+    public void setValuesToZero(FeatureItem featureItem) {
       clearValues(featureItem);
       clearFields(featureOneEditText, featureTwoEditText, predictedValueEditText);
     }
