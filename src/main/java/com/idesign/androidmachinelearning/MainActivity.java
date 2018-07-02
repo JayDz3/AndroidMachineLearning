@@ -48,6 +48,7 @@ public class MainActivity extends AppCompatActivity {
 
     final Observer<List<FeatureItem>> itemObserver = featureItems -> setViewModel(adapter, featureItems);
     viewModel.getItems().observe(this, itemObserver);
+
   }
 
   public void setViewModel(FeatureItemAdapter adapter, List<FeatureItem> featureItems) {
@@ -273,6 +274,16 @@ public class MainActivity extends AppCompatActivity {
 
   @Override
   protected void onSaveInstanceState(Bundle outState) {
+    removeEmptyItemOnOrientationChange();
     super.onSaveInstanceState(outState);
+  }
+
+  public void removeEmptyItemOnOrientationChange() {
+    if (items.size() > 0) {
+      FeatureItem featureItem = items.get(items.size() - 1);
+      if (isEmptyItem(featureItem)) {
+        items.remove(featureItem);
+      }
+    }
   }
 }
