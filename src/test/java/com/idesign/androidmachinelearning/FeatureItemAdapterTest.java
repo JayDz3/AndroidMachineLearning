@@ -1,7 +1,6 @@
 package com.idesign.androidmachinelearning;
 
 import com.idesign.androidmachinelearning.Interfaces.OnAddItem;
-import com.idesign.androidmachinelearning.Interfaces.OnAddItems;
 import com.idesign.androidmachinelearning.Interfaces.OnSetItems;
 
 import org.junit.Test;
@@ -15,7 +14,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
-public class FeatureItemAdapterTest implements OnAddItems<FeatureItem>, OnAddItem<FeatureItem>, OnSetItems<FeatureItem> {
+public class FeatureItemAdapterTest implements OnAddItem<FeatureItem>, OnSetItems<FeatureItem> {
 
   private List<FeatureItem> items = new ArrayList<>();
   private FeatureItemAdapter adapter = new FeatureItemAdapter(items);
@@ -75,7 +74,7 @@ public class FeatureItemAdapterTest implements OnAddItems<FeatureItem>, OnAddIte
     featureItems.add(featureItem);
     featureItems.add(featureItem2);
 
-    setItemsBy(featureItems);
+    setList(featureItems);
     adapter.setItemsTest(items);
 
     FeatureItem item1 = adapter.getItems().get(0);
@@ -88,7 +87,7 @@ public class FeatureItemAdapterTest implements OnAddItems<FeatureItem>, OnAddIte
   public void adapter_setItems_getSingleValues() {
     FeatureItem featureItem = new FeatureItem(1.0, 0.0, 0.0, 0.0);
     FeatureItem featureItem2 = new FeatureItem(1, 1, 1, 1);
-    addAllItems(items, featureItem, featureItem2);
+    addAll(items, featureItem, featureItem2);
     adapter.setItemsTest(items);
 
     FeatureItem item1 = adapter.getItems().get(0);
@@ -106,7 +105,7 @@ public class FeatureItemAdapterTest implements OnAddItems<FeatureItem>, OnAddIte
   public void adapter_setItems_getAllValues() {
     FeatureItem featureItem = new FeatureItem(1.0, 0.0, 0.0, 0.0);
     FeatureItem featureItem2 = new FeatureItem(1, 1, 1, 1);
-    addAllItems(items, featureItem, featureItem2);
+    addAll(items, featureItem, featureItem2);
     adapter.setItemsTest(items);
 
     FeatureItem item1 = adapter.getItemAtPosition(0);
@@ -130,7 +129,7 @@ public class FeatureItemAdapterTest implements OnAddItems<FeatureItem>, OnAddIte
   public void adapter_setItems_getItemValues() {
     FeatureItem featureItem = new FeatureItem(1.0, 0.0, 0.0, 0.0);
     FeatureItem featureItem2 = new FeatureItem(1, 1, 1, 1);
-    addAllItems(items, featureItem, featureItem2);
+    addAll(items, featureItem, featureItem2);
     adapter.setItemsTest(items);
 
     FeatureItem item1 = adapter.getItemAtPosition(0);
@@ -155,11 +154,11 @@ public class FeatureItemAdapterTest implements OnAddItems<FeatureItem>, OnAddIte
     list.add(featureItem);
   }
 
-  public void addAllItems(List<FeatureItem> list, FeatureItem... featureItems) {
+  public void addAll(List<FeatureItem> list, FeatureItem... featureItems) {
     Collections.addAll(list, featureItems);
   }
 
-  public void setItemsBy(List<FeatureItem> source) {
+  public void setList(List<FeatureItem> source) {
     this.items = source;
   }
 }

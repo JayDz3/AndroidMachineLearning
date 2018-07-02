@@ -46,7 +46,7 @@ public class MainActivity extends AppCompatActivity {
     final FeatureItemAdapter adapter = new FeatureItemAdapter(items);
     recyclerView.setAdapter(adapter);
 
-    final Observer<List<FeatureItem>> itemObserver = featureItems -> setViewModel(adapter, featureItems);
+    final Observer<List<FeatureItem>> itemObserver = featureItems -> MainActivity.this.setViewModel(adapter, featureItems);
     viewModel.getItems().observe(this, itemObserver);
 
   }
@@ -54,7 +54,7 @@ public class MainActivity extends AppCompatActivity {
   public void setViewModel(FeatureItemAdapter adapter, List<FeatureItem> featureItems) {
     if (featureItems != null) {
       items = featureItems;
-      adapter.setItemsBy(items);
+      adapter.setList(items);
     }
   }
 
@@ -88,7 +88,7 @@ public class MainActivity extends AppCompatActivity {
   public boolean sizeIsZero(int size) {
     if (size == 0) {
       addFeatureItem();
-      viewModel.setItemsBy(items);
+      viewModel.setList(items);
       return true;
     }
     return false;
@@ -116,7 +116,7 @@ public class MainActivity extends AppCompatActivity {
       }
       if (!isEmptyItem(items.get(size - 1))) {
         addFeatureItem();
-        viewModel.setItemsBy(items);
+        viewModel.setList(items);
       }
     }
   }
@@ -141,7 +141,7 @@ public class MainActivity extends AppCompatActivity {
     FeatureItemAdapter.MyViewHolder viewHolder = getViewHolder(position);
     viewHolder.setValuesToZero(items.get(position));
     items.remove(position);
-    viewModel.setItemsBy(items);
+    viewModel.setList(items);
   }
 
   /*==================================*
@@ -184,7 +184,7 @@ public class MainActivity extends AppCompatActivity {
     if (isEmptyItem(featureItem)) {
       items.remove(pos);
     }
-    viewModel.setItemsBy(items);
+    viewModel.setList(items);
     if (pos == 0) {
       showToast("There is no valid data to assess");
       return true;
@@ -207,7 +207,7 @@ public class MainActivity extends AppCompatActivity {
         viewHolder.setValuesToZero(items.get(j));
       }
       items.clear();
-      viewModel.setItemsBy(items);
+      viewModel.setList(items);
     }
   }
 

@@ -9,14 +9,12 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 
 import com.idesign.androidmachinelearning.Interfaces.OnAddItem;
-import com.idesign.androidmachinelearning.Interfaces.OnAddItems;
 import com.idesign.androidmachinelearning.Interfaces.OnSetItems;
 
 import java.util.Collections;
 import java.util.List;
 
 public class FeatureItemAdapter extends RecyclerView.Adapter<FeatureItemAdapter.MyViewHolder> implements
-OnAddItems<FeatureItem>,
 OnAddItem<FeatureItem>,
 OnSetItems<FeatureItem> {
 
@@ -121,11 +119,11 @@ OnSetItems<FeatureItem> {
     items.add(featureItem);
   }
 
-  public void addAllItems(List<FeatureItem> items, FeatureItem[] featureItems) {
+  public void addAll(List<FeatureItem> items, FeatureItem[] featureItems) {
     Collections.addAll(items, featureItems);
   }
 
-  public void setItemsBy(List<FeatureItem> source) {
+  public void setList(List<FeatureItem> source) {
     this.items = source;
     notifyDataSetChanged();
   }

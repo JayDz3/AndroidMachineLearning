@@ -20,7 +20,7 @@ public class FeatureViewModel extends ViewModel implements OnSetItems<FeatureIte
     return items;
   }
 
-  public void setItemsBy(List<FeatureItem> incoming) {
+  public void setList(List<FeatureItem> incoming) {
     if (items == null) {
       items = new MutableLiveData<>();
     }
